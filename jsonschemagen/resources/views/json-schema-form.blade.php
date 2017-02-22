@@ -11,155 +11,168 @@
     <meta name="author" content="">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>AppGenerator</title>
-    <!-- Bootstrap core CSS -->
-    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="{{ asset('css/ie10-viewport-bug-workaround.css') }}" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="{{ asset('css/jumbotron-narrow.css') }}" rel="stylesheet">
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="{{ asset('js/ie-emulation-modes-warning.js') }}"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css"/>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css" />
+    <script src="https://unpkg.com/vue@2.1.10/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
     <style>
         pre {
-               background-color: ghostwhite;
-               border: 1px solid silver;
-               padding: 10px 20px;
-               margin: 20px; 
-               }
-            .json-key {
-               color: brown;
-               }
-            .json-value {
-               color: navy;
-               }
-            .json-string {
-               color: olive;
-               }
+           background-color: ghostwhite;
+           border: 1px solid silver;
+           padding: 10px;
+           }
+        .json-key {
+           color: brown;
+           }
+        .json-value {
+           color: navy;
+           }
+        .json-string {
+           color: olive;
+           }
+        .title{
+            text-align: center;
+            margin: 30px auto;
+            font-size: 33px;
+            font-weight: bold;
+        }
+        .profile{
+            margin: 30px 0;
+        }
+        .submit-button{
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
+<div id="generator">
+    <h1 class="title">Json Schema Generator</h1>
+    <div class="container">
 
-<div class="col-lg-6">
-	<h2>JSON SCHEMA GENERATOR</h2>
-	<form method="post" action="/" autocomplete="off">
+        <div class="profile">
+            <div v-if="save_error">
+                <div class="alert alert-danger">
+                    <ul>
+                        <li v-for="error in save_error.data.name">@{{ error }}</li>
+                        <li v-for="error in save_error.data.json">@{{ error }}</li>
+                        <li v-for="error in save_error.data.response_time">@{{ error }}</li>
+                    </ul>
+                </div>
+            </div>
+            Halo {{\Auth::user()->name}}! <span><a href="\logout">Logout</a></span>
+            <div>
+                <input type="text" v-model="project_name" placeholder="Nama Projek">
+                <button v-on:click="save_project">Simpan data</button>
+            </div>
+            <div>
+                <select  name="" v-model="project_chooser" placeholder="Nama Projek" id="">
+                    <option value="">Pilih Projek</option>
+                    <option v-for="(project,key) in projects" :value="key">@{{ project.name }}</option>
+                </select>
+                <button v-on:click="choose_project">Buka projek</button>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="columns">
+            <div class="column">
+                <form method="post" action="/request_json" autocomplete="off">
+                    <div v-if="errors">
+                        <div class="alert alert-danger">
+                            <ul>
+                                <li v-for="error in errors.data.json">@{{ error }}</li>
+                                <li v-for="error in errors.data.response_time">@{{ error }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input id="deta" type="hidden" name="_token" value="{{ csrf_token() }}">
 
-		@if(count($errors))
-			<div class="alert alert-danger">
-				<strong>Whoops!</strong> There were some problems with your input.
-				<br/>
-				<ul>
-					@foreach($errors->all() as $error)
-					<li>{{ $error }}</li>
-					@endforeach
-				</ul>
-			</div>
-		@endif
-
-		<input id="deta" type="hidden" name="_token" value="{{ csrf_token() }}">
-
-		<div class="row">
-			<div class="col-md-10">
-				
-					<label for="details">JSON:</label>
-					<textarea name="details" id="details" class="form-control" placeholder="Enter JSON" rows="40" value="">@if(Session::has('details')){{ Session::get('details')}}@endif</textarea>
-					
-				
-                <p><label>Response Time:</label>
-                    <input type="text" name="response" class="form-control input" value="@if(Session::has('response')){{ Session::get('response')}}@endif" size="50" placeholder="response time"></p>
-			</div>
-		</div>
-
-		<div class="form-group">
-			<button class="btn btn-success" type="submit" name="commit" value="submit" >Submit</button>
-		</div>
- 
-	</form>
-
-    
-
+                    <label for="details">JSON:</label>
+                    <textarea v-model="json" name="details" id="details" class="form-control" placeholder="JSON" rows="40" ></textarea>
+                    <p><label>Response Time:</label>
+                    <input type="text" v-model="response_time" name="response" class="form-control input" size="50" placeholder="Response Time"></p>
+                    <div class="form-group submit-button">
+                        <button type="button" class="btn btn-success" v-on:click="$event.preventDefault();request_data()" name="commit">Submit </button>
+                    </div>
+                </form>
+            </div>
+            <div class="column">
+                <div v-if="response">
+                    <div v-html="response"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-    
-<div class="col-lg-6">
-    @if(!count($errors)  && Session::has('details') && Session::get('response'))
-    <div>
-    <pre>
-    var error = responseCode.code === 500;
-    var empty = responseCode.code === 204;
-
-    if(error) // block below is for 500 error scenario
-    {
-        tests["Response Error"] = error !== true;
-    }
-    else if(empty) // block below is for empty scenario
-    { 
-        tests["Response Empty"] = empty === true;
-    }
-    else // block below is for return with payload
-    {
-        tests["Response time is less than 500ms"] = responseTime <  {{$response}};
-
-        tests["Body matches string"] = responseBody.has("status");
-        tests["Body matches string"] = responseBody.has("data");
-        tests["Body matches string"] = responseBody.has("message");
-
-        var schema = <code id=account></code>;
-
-        var data = JSON.parse(responseBody);
-        console.log(tv4.error);
-        tests["Valid Data Structure"] = tv4.validate(data, schema);   
-
-        if(data.success) // case success
-        {
-            tests["Status code equal 200"] = responseCode.code === 200;
+<script>
+    axios.defaults.headers.common['X-CSRF-TOKEN'] = $('meta[name="csrf-token"]').attr('content');
+    data = new Vue({
+        el: '#generator',
+        data: {
+            response: null,
+            json: null,
+            response_time: null,
+            errors: null,
+            project_name: null,
+            save_error: null,
+            projects: null,
+            project_chooser:""
+        },
+        mounted: function(){
+            this.get_project();
+        },
+        methods:{
+            request_data:function(){
+                this.response = null;
+                this.errors = null;
+                axios.post('request_json',{
+                    json: this.json,
+                    response_time: this.response_time
+                }).then(function(response){
+                    console.log(response);
+                    kepo =response;
+                    this.response = response.data;
+                }.bind(this)).catch(function(errors){
+                    kepo = errors;
+                    this.errors = errors.response;
+                    console.log(errors.response);
+                }.bind(this));
+            },
+            save_project:function(){
+                this.save_error = null;
+                axios.post('project',{
+                    name: this.project_name,
+                    json: this.json,
+                    response_time: this.response_time
+                }).then(function(response){
+                    console.log('ok');
+                    toastr.success('Saving success');
+                    this.get_project();
+                }.bind(this)).catch(function(errors){
+                    kepo = errors;
+                    this.save_error = errors.response;
+                    console.log(errors.response);
+                }.bind(this));
+            },
+            get_project:function(){
+                 axios.get('project')
+                    .then(function(response){
+                        this.projects = response.data;
+                    }.bind(this));
+            },
+            choose_project:function(){
+                this.json = this.projects[this.project_chooser].json;
+                this.response_time = this.projects[this.project_chooser].response_time;
+            }
         }
-        else // case failed
-        {
-            tests["Status code is not equal to 500"] = responseCode.code !== 500;
-            tests["Status code is not equal to 200"] = responseCode.code !== 200;
-            tests["Error message should present"] = data.message.length > 0;
-        }
-    }
-    
-    </pre>
-    </div>
-    @endif
-    </div>
-
-<script type="text/javascript">
-   
-    if (!library)
-    var library = {};
-
-    library.json = {
-       replacer: function(match, pIndent, pKey, pVal, pEnd) {
-          var key = '<span class=json-key>';
-          var val = '<span class=json-value>';
-          var str = '<span class=json-string>';
-          var r = pIndent || '';
-          if (pKey)
-             r = r + key + pKey.replace(/[": ]/g, '') + '</span>: ';
-          if (pVal)
-             r = r + (pVal[0] == '"' ? str : val) + pVal + '</span>';
-          return r + (pEnd || '');
-          },
-       prettyPrint: function(obj) {
-          var jsonLine = /^( *)("[\w]+": )?("[^"]*"|[\w.+-]*)?([,[{])?$/mg;
-          return JSON.stringify(obj, null, 3)
-             .replace(/&/g, '&amp;').replace(/\\"/g, '&quot;')
-             .replace(/</g, '&lt;').replace(/>/g, '&gt;')
-             .replace(jsonLine, library.json.replacer);
-          }
-       };
-    var account =  <?php echo $result?>;
-    $('#account').html(library.json.prettyPrint(account));
-    
-    
-
+    })
 </script>
 </body>
 </html>
