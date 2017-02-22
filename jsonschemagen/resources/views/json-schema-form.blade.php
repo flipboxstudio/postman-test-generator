@@ -137,10 +137,8 @@
                     response_time: this.response_time
                 }).then(function(response){
                     console.log(response);
-                    kepo =response;
                     this.response = response.data;
                 }.bind(this)).catch(function(errors){
-                    kepo = errors;
                     this.errors = errors.response;
                     console.log(errors.response);
                 }.bind(this));
@@ -156,7 +154,6 @@
                     toastr.success('Saving success');
                     this.get_project();
                 }.bind(this)).catch(function(errors){
-                    kepo = errors;
                     this.save_error = errors.response;
                     console.log(errors.response);
                 }.bind(this));
