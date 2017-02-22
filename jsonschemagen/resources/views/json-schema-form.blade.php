@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Laravel 5.3 - Form Validation</title>
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <title>Postman Test Generator</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
      <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,12 +10,12 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <title>AppGenerator</title>
+    <title>Postman Test Generator</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css"/>
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.3.1/css/bulma.min.css" />
     <script src="https://unpkg.com/vue@2.1.10/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -53,10 +53,13 @@
 </head>
 <body>
 <div id="generator">
-    <h1 class="title">Json Schema Generator</h1>
+    <h1 class="title">Postman Test Generator</h1>
     <div class="container">
 
         <div class="profile">
+            <div class="box">
+                    Halo {{\Auth::user()->name}}! <span><a href="\logout">Logout</a></span>
+            </div>
             <div v-if="save_error">
                 <div class="alert alert-danger">
                     <ul>
@@ -66,17 +69,22 @@
                     </ul>
                 </div>
             </div>
-            Halo {{\Auth::user()->name}}! <span><a href="\logout">Logout</a></span>
-            <div>
-                <input type="text" v-model="project_name" placeholder="Nama Projek">
-                <button v-on:click="save_project">Simpan data</button>
-            </div>
-            <div>
-                <select  name="" v-model="project_chooser" placeholder="Nama Projek" id="">
-                    <option value="">Pilih Projek</option>
-                    <option v-for="(project,key) in projects" :value="key">@{{ project.name }}</option>
-                </select>
-                <button v-on:click="choose_project">Buka projek</button>
+            <div class="box">
+                <div class="columns">
+                    <input class="column is-2" type="text" v-model="project_name" placeholder="Nama Projek">
+                    
+                    <button class="column is-2" v-on:click="save_project">Simpan data</button>
+
+                    <span class="column is-4"></span>
+                <!-- </div>
+                <div class="columns"> -->
+                    <select class="column is-2" name="" v-model="project_chooser" placeholder="Nama Projek" id="">
+                        <option value="">Pilih Projek</option>
+                        <option v-for="(project,key) in projects" :value="key">@{{ project.name }}</option>
+                    </select>
+                    
+                    <button class="column is-2" v-on:click="choose_project">Buka projek</button>
+                </div>
             </div>
         </div>
     </div>
@@ -167,6 +175,7 @@
             choose_project:function(){
                 this.json = this.projects[this.project_chooser].json;
                 this.response_time = this.projects[this.project_chooser].response_time;
+                this.request_data();
             }
         }
     })
