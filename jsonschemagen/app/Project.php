@@ -8,7 +8,8 @@ class Project extends Model
 {
     protected $fillable = ['name','user_id','json','response_time'];
 
-    public function user(){
+    public function user()
+    {
         $this->belongsTo(User::class);
     }
 }
