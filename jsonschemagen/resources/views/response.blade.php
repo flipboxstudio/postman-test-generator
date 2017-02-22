@@ -14,7 +14,7 @@
     }
     else // block below is for return with payload
     {
-        tests["Response time is less than 500ms"] = responseTime <  {{$response}};
+        tests["Response time is less than {{$response}}ms"] = responseTime <  {{$response}};
 
         tests["Body matches string"] = responseBody.has("status");
         tests["Body matches string"] = responseBody.has("data");
