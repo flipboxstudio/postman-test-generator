@@ -17,7 +17,7 @@ class CreateProjectsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('user_id');
-            $table->string('json');
+            $table->longText('json');
             $table->integer('response_time');
             $table->timestamps();
         });
