@@ -36,9 +36,9 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'name' => 'required',
-            'json' => 'required',
-            'response_time' => 'required'
+            'name' => 'required|string',
+            'json' => 'required|json',
+            'response_time' => 'required|numeric'
         ]);
         Project::create([
             'user_id' => \Auth::user()->id,
